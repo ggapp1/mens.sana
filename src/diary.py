@@ -1,6 +1,8 @@
 import os
 import mysql.connector
 from datetime import datetime
+import hashlib
+import getpass
 
 
 class DiaryEntry:
@@ -45,9 +47,44 @@ def readNewEntry():
 
 
 def consultEntry():
-	print "o"
+	date = raw_input("	Digite a data: ")
+
 def seeEntries():
 	print "s"
+
+
+def logon():
+	os.system("clear")
+	print("################################################################################")
+	print("################################# WELCOME TO ###################################")
+	print("#################################  MENS SANA ###################################")
+	print("################################################################################")
+	print("\n\n")
+	login = raw_input("	DIGITE O LOGIN: ")
+	password = getpass.getpass("	DIGITE A SENHA: ")
+
+	if authLogin(login,password):
+		run()
+	else:
+		logon()
+
+def authLogin(login, password):
+	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
+	
+	logged = False
+	cursor = connection.cursor()
+
+	query = ('SELECT password FROM user WHERE login = %s')
+
+	cursor.execute(query, (login,))
+	for p in cursor:
+		if hashlib.md5(password).hexdigest() == p[0]:
+			logged = True
+
+	cursor.close()
+	connection.close()
+	return logged
+
 
 def run():
 	
