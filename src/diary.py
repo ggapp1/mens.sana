@@ -37,11 +37,11 @@ def readNewEntry():
 	print "	"+title
 	print "\n	"+entry
 	
-	confirm = (raw_input("\nInserir entrada?"))
+	confirm = (raw_input("\nInserir entrada? (Digite 1 para confirmar) "))
 	
 	if(confirm == '1'):
 		saveEntry(DiaryEntry(title,entry))
-		raw_input("Insercao bem sucedida!\nPressione uma tecla para voltar ao menu")
+		raw_input("Insercao bem sucedida!\nPressione uma tecla para voltar ao menu: ")
 	else:
 		readNewEntry()
 
@@ -52,6 +52,26 @@ def consultEntry():
 def seeEntries():
 	print "s"
 
+def seeAllEntries():
+	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
+	cursor = connection.cursor()
+
+	query = ('SELECT title, text, date(creation_date), time(creation_date) FROM entry')
+	
+	cursor.execute(query)
+	for title, text, date, time in cursor:
+		os.system("clear")
+		print("################################################################################")
+		print("################################ ALL ENTRIES ###################################")
+		print("################################################################################")
+		print "\n\n"
+		print(title + ", as " + str(time) + ", em " + str(date) + ".")
+		print "	"+text
+		b = raw_input("\n\nAperte uma tecla para ir para a proxima entrada: ")
+	c = raw_input("Fim das entradas, aperte uma tecla para voltar ao menu: ")	
+
+	cursor.close()
+	connection.close()
 
 def logon():
 	os.system("clear")
@@ -60,8 +80,8 @@ def logon():
 	print("#################################  MENS SANA ###################################")
 	print("################################################################################")
 	print("\n\n")
-	login = raw_input("	DIGITE O LOGIN: ")
-	password = getpass.getpass("	DIGITE A SENHA: ")
+	login = raw_input("	Digite o login: ")
+	password = getpass.getpass("	Digite a senha: ")
 
 	if authLogin(login,password):
 		run()
@@ -97,17 +117,20 @@ def run():
 		print("################################################################################")
 		print("Escolha uma opcao:")
 		print("	1 - Criar novo registro")
-		print("	2 - Consultar um registro por data")
+		print("	2 - Consultar todos os registros")
 		print("	3 - Verificar a quantidade de registros, por data")
-		print("	4 - Sair")
+		print("	4 - Consultar um registro por data")
+		print("	5 - Sair")
 		option = int(raw_input())
 		if option == 1:
 			readNewEntry()
 		elif option == 2:
-			consultEntry()
+			seeAllEntries()
 		elif option == 3:
 			seeEntries()
 		elif option == 4:
+			rconsultEntry()
+		elif option == 5:
 			running = False
 		else:
 			print "Codigo invalido!"
