@@ -47,7 +47,36 @@ def readNewEntry():
 
 
 def consultEntry():
-	date = raw_input("	Digite a data: ")
+	os.system("clear")
+	print("################################################################################")
+	print("############################## ENTRIES BY DATE #################################")
+	print("################################################################################")
+	print "\n\n"	
+	date = raw_input("	Digite a data (YYYY-MM-DD): ")
+	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
+	cursor = connection.cursor()
+
+	query=('SELECT title,text,date(creation_date),time(creation_date) FROM entry where date(creation_date) = %s')
+	query2=('SELECT count(*) FROM entry where date(creation_date) = %s')
+	cursor.execute(query2, (date,))
+	for i in cursor:
+		print "\nForam encontrados "+str(i[0])+" registros nessa data!"
+	b = raw_input("Aperte uma tecla para ver as entradas: ")
+	cursor.execute(query, (date,))
+	for title, text, date, time in cursor:
+		os.system("clear")
+		print("################################################################################")
+		print("################################ ALL ENTRIES ###################################")
+		print("################################################################################")
+		print "\n\n"
+		print(title + ", as " + str(time) + ", em " + str(date) + ".")
+		print "	"+text
+		b = raw_input("\n\nAperte uma tecla para ir para a proxima entrada: ")
+	c = raw_input("Fim das entradas, aperte uma tecla para voltar ao menu: ")	
+
+	cursor.close()
+	connection.close()
+
 
 def seeEntries():
 	print "s"
@@ -118,19 +147,16 @@ def run():
 		print("Escolha uma opcao:")
 		print("	1 - Criar novo registro")
 		print("	2 - Consultar todos os registros")
-		print("	3 - Verificar a quantidade de registros, por data")
-		print("	4 - Consultar um registro por data")
-		print("	5 - Sair")
+		print("	3 - Consultar registros por data")
+		print("	0 - Sair")
 		option = int(raw_input())
 		if option == 1:
 			readNewEntry()
 		elif option == 2:
 			seeAllEntries()
 		elif option == 3:
-			seeEntries()
-		elif option == 4:
-			rconsultEntry()
-		elif option == 5:
+			consultEntry()
+		elif option == 0:
 			running = False
 		else:
 			print "Codigo invalido!"
