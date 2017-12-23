@@ -1,3 +1,3 @@
-import src.diary as diary
+import src.login as login
 
-diary.logon()
+login.logon()

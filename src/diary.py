@@ -1,9 +1,9 @@
 import os
 import mysql.connector
 from datetime import datetime
-import hashlib
-import getpass
-from time import sleep
+import login
+import cipher
+
 
 
 class DiaryEntry:
@@ -11,23 +11,20 @@ class DiaryEntry:
 		self.title = title
 		self.text = text
 
-def saveEntry(entry):
+def saveEntry(entry, activeUser):
 
 	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
-
-
 	cursor = connection.cursor()
 
-	insert_entry = ('INSERT INTO entry (title, text) VALUES (%s, %s)')
-	entry_data = (entry.title, entry.text)
+	insert_entry = ('INSERT INTO entry (title, text, user) VALUES (%s, %s, %s)')
+	entry_data = (entry.title, cipher.encrypt(activeUser,entry.text), activeUser)
 
 	cursor.execute(insert_entry, entry_data)
 	connection.commit()
 	cursor.close()
 	connection.close()
 
-
-def readNewEntry():
+def newEntry(activeUser):
 	os.system("clear")
 	print("################################################################################")
 	print("############################ INSERIR NOVA ENTRADA ##############################")
@@ -41,48 +38,46 @@ def readNewEntry():
 	confirm = (raw_input("\nInserir entrada? (Digite 1 para confirmar) "))
 
 	if(confirm == '1'):
-		saveEntry(DiaryEntry(title,entry))
+		saveEntry(DiaryEntry(title,entry), activeUser)
 		raw_input("Insercao bem sucedida!\nPressione uma tecla para voltar ao menu: ")
-	else:
-		readNewEntry()
+	
 
-
-def consultEntry():
+def consultEntry(activeUser):
 	os.system("clear")
 	print("################################################################################")
 	print("############################## ENTRIES BY DATE #################################")
 	print("################################################################################")
 	print "\n\n"
+
 	date = raw_input("	Digite a data (YYYY-MM-DD): ")
 	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
 	cursor = connection.cursor()
 
-	query=('SELECT title,text,date(creation_date),time(creation_date) FROM entry where date(creation_date) = %s')
-	query2=('SELECT count(*) FROM entry where date(creation_date) = %s')
-	cursor.execute(query2, (date,))
+	query= 'SELECT title,text,date(creation_date),time(creation_date) ' \
+		   'FROM entry where date(creation_date) = %s and user = %s'
+	query2= 'SELECT count(*) FROM entry where date(creation_date) = %s and user = %s'
+	cursor.execute(query2, (date,activeUser))
 	for i in cursor:
 		print "\nForam encontrados "+str(i[0])+" registros nessa data!"
-	b = raw_input("Aperte uma tecla para ver as entradas: ")
-	cursor.execute(query, (date,))
-	for title, text, date, time in cursor:
-		os.system("clear")
-		print("################################################################################")
-		print("################################ ALL ENTRIES ###################################")
-		print("################################################################################")
-		print "\n\n"
-		print(title + ", as " + str(time) + ", em " + str(date) + ".")
-		print "	"+text
-		b = raw_input("\n\nAperte uma tecla para ir para a proxima entrada: ")
+	if(i[0] != 0):
+		b = raw_input("Aperte uma tecla para ver as entradas: ")
+		cursor.execute(query, (date,activeUser))
+		for title, text, date, time in cursor:
+			os.system("clear")
+			print("################################################################################")
+			print("################################ ALL ENTRIES ###################################")
+			print("################################################################################")
+			print "\n\n"
+			print(title + ", as " + str(time) + ", em " + str(date) + ".")
+			text = cipher.decrypt(activeUser, text)
+			print "	"+text
+			b = raw_input("\n\nAperte uma tecla para ir para a proxima entrada: ")
 	c = raw_input("Fim das entradas, aperte uma tecla para voltar ao menu: ")
 
 	cursor.close()
 	connection.close()
 
-
-def seeEntries():
-	print "s"
-
-def seeAllEntries():
+def seeAllEntries(activeUser):
 	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
 	cursor = connection.cursor()
 
@@ -96,6 +91,7 @@ def seeAllEntries():
 		print("################################################################################")
 		print "\n\n"
 		print(title + ", as " + str(time) + ", em " + str(date) + ".")
+		text = cipher.decrypt(activeUser, text)
 		print "	"+text
 		b = raw_input("\n\nAperte uma tecla para ir para a proxima entrada: ")
 	c = raw_input("Fim das entradas, aperte uma tecla para voltar ao menu: ")
@@ -103,64 +99,12 @@ def seeAllEntries():
 	cursor.close()
 	connection.close()
 
-def logon():
-	os.system("clear")
-	print("################################################################################")
-	print("################################# WELCOME TO ###################################")
-	print("#################################  MENS SANA ###################################")
-	print("################################################################################")
-	new_user = raw_input("Aperte enter para logar: ")
-	print("\n\n")
-	if(new_user == "y"):
-		login = raw_input("	Digite novo login: ")
-		password = getpass.getpass("	Digite a nova senha: ")
-		createUser(login, password)
-		print("usuario criado")
-		logon()
-	else:
-		login = raw_input("	Digite o login: ")
-		password = getpass.getpass("	Digite a senha: ")
-
-		if authLogin(login,password):
-			run()
-		else:
-			print("usuario ou senha incorreta")
-			sleep(5)
-			logon()
-
-def authLogin(login, password):
-	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
-
-	logged = False
-	cursor = connection.cursor()
-
-	query = ('SELECT password FROM user WHERE login = %s')
-
-	cursor.execute(query, (login,))
-	for p in cursor:
-		if hashlib.md5(password).hexdigest() == p[0]:
-			logged = True
-
-	cursor.close()
-	connection.close()
-	return logged
-
-def createUser(login, password):
-	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
-	cursor = connection.cursor()
-
-	insert_user = ('INSERT INTO user (login, password) VALUES (%s, %s)')
-	user_data = (login, hashlib.md5(password).hexdigest())
-
-	cursor.execute(insert_user, user_data)
-	connection.commit()
-	cursor.close()
-	connection.close()
-
-def run():
+def run(user):
 	running = True
+	activeUser = user
 	while running:
 		os.system("clear")
+		print activeUser
 		print("################################################################################")
 		print("################################# WELCOME TO ###################################")
 		print("#################################  MENS SANA ###################################")
@@ -173,11 +117,11 @@ def run():
 		print("	0 - Sair")
 		option = int(raw_input())
 		if option == 1:
-			readNewEntry()
+			newEntry(activeUser)
 		elif option == 2:
-			seeAllEntries()
+			seeAllEntries(activeUser)
 		elif option == 3:
-			consultEntry()
+			consultEntry(activeUser)
 		elif option == 0:
 			running = False
 		else:
