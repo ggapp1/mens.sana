@@ -4,6 +4,9 @@ from datetime import datetime
 import login
 import cipher
 
+def connectDatabase():
+	return mysql.connector.connect(user='root', password='', host='127.0.0.1', database='menssana')
+	
 
 
 class DiaryEntry:
@@ -13,7 +16,7 @@ class DiaryEntry:
 
 def saveEntry(entry, activeUser):
 
-	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
+	connection = connectDatabase()
 	cursor = connection.cursor()
 
 	insert_entry = ('INSERT INTO entry (title, text, user) VALUES (%s, %s, %s)')
@@ -50,7 +53,7 @@ def consultEntry(activeUser):
 	print "\n\n"
 
 	date = raw_input("	Digite a data (YYYY-MM-DD): ")
-	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
+	connection = connectDatabase()
 	cursor = connection.cursor()
 
 	query= 'SELECT title,text,date(creation_date),time(creation_date) ' \
@@ -78,7 +81,7 @@ def consultEntry(activeUser):
 	connection.close()
 
 def seeAllEntries(activeUser):
-	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
+	connection = connectDatabase()
 	cursor = connection.cursor()
 
 	query = ('SELECT title, text, date(creation_date), time(creation_date) FROM entry')

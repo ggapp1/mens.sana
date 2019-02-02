@@ -6,7 +6,6 @@ from time import sleep
 import diary
 
 
-
 def logon():
 	os.system("clear")
 	print("################################################################################")
@@ -38,8 +37,8 @@ def logon():
         			logon()
 
 def authLogin(login, password):
-	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
-
+	
+	connection = diary.connectDatabase()
 	logged = False
 	cursor = connection.cursor()
 
@@ -55,7 +54,7 @@ def authLogin(login, password):
 	return logged
 
 def createUser(login, password):
-	connection = mysql.connector.connect(user='root', password='root', host='127.0.0.1', database='menssana')
+	connection = diary.connectDatabase()
 	cursor = connection.cursor()
 
 	insert_user = ('INSERT INTO user (login, password) VALUES (%s, %s)')
