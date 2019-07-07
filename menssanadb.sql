@@ -34,12 +34,6 @@ CREATE TABLE `entry` (
 -- Dumping data for table `entry`
 --
 
-LOCK TABLES `entry` WRITE;
-/*!40000 ALTER TABLE `entry` DISABLE KEYS */;
-INSERT INTO `entry` VALUES ('Voltando ao mens sana','XWKdMY`RMg`T\\GZLGa`Q[UV]OeMUR`LMZ_I\\KgZLIFVMUVUWZeIRZ`ZIV^INXfV[RdXMEe`[FR^QFRUWURVKCdOZC_UM[VeKGeTX`]\\MKY]GcZIVVc^Q]eILQRV\\GdUCd\\IXR\\]F`U]Ke`\\W^fT\\WRUWeVUXQ_IWd`JZCgRORdMZd[WRZRcV\\MPU`UC_eMZR^MTdRWG^XaVNWT\\RZRRcI,DXITRIXTV_LMT-[RVcWSfVMUdR[HVcQIUdMRC^I[^VTPQcV[GgVZ','2017-12-23 19:27:19','ggapp'),('adicao da encriptacao','ILKTZWVGZ]UCTZQRe`JG^\\ZQfiISfV^K_WUeRKS`gMZH]`_SfVJCdZKIOV_\\Md`UI`d^C]`ZMUR[KKZLITYI^GVLQeM`V`UCd\\,SWU5UfWQKKV_\\MV\\C^S,OeMUQdIOQcR]OdPMN]XITRNI\\VcJCT\\]XUV\\WU`X`]\\MKj]XKZZQQ','2017-12-23 19:31:18','ggapp');
-/*!40000 ALTER TABLE `entry` ENABLE KEYS */;
-UNLOCK TABLES;
-
 --
 -- Table structure for table `user`
 --
